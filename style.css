@@ -1,0 +1,94 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradientBG 12s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
+.weather-container {
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  width: 380px;
+  text-align: center;
+  animation: fadeIn 1.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.search-box input {
+  padding: 10px;
+  border: none;
+  width: 70%;
+  font-size: 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.search-box button {
+  padding: 10px 15px;
+  border: none;
+  margin-left: 5px;
+  font-size: 16px;
+  background-color: #ff6b6b;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.search-box button:hover {
+  background-color: #ff3b3b;
+}
+
+.weather-result {
+  margin-top: 20px;
+  color: #222;
+}
+
+.weather-result img {
+  width: 100px;
+  margin-bottom: 10px;
+}
+
+.info {
+  font-size: 18px;
+  margin-top: 10px;
+}
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: url('https://i.imgur.com/NmnHh2L.png') repeat-x;
+  animation: cloudMove 60s linear infinite;
+  opacity: 0.2;
+  z-index: -1;
+}
+
+@keyframes cloudMove {
+  from { background-position: 0 0; }
+  to { background-position: 1000px 0; }
+}
