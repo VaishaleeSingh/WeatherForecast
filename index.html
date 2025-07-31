@@ -3,19 +3,184 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Creative Weather App</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Weather Forecast Pro</title>
+  <link rel="stylesheet" href="style.css?v=2" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    /* Debug styles to ensure content is visible */
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .debug-info {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      z-index: 1000;
+    }
+  </style>
 </head>
 <body>
+            <div class="debug-info">
+            <div>App Status: <span id="status">Loading...</span></div>
+            <div>Elements Found: <span id="elements">Checking...</span></div>
+            <div>Current Theme: <span id="currentTheme">Default</span></div>
+          </div>
+
   <div class="weather-container">
-    <h1>🌦️ Weather App</h1>
-    <div class="search-box">
-      <input type="text" id="cityInput" placeholder="Enter city name..." />
-      <button onclick="getWeather()">Search</button>
+    <header class="app-header">
+      <h1><i class="fas fa-cloud-sun"></i> Weather Forecast Pro</h1>
+      <p class="subtitle">Your comprehensive weather companion</p>
+    </header>
+
+    <div class="search-section">
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="cityInput" placeholder="Enter city name..." />
+        <button onclick="getWeather()" class="search-btn">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+                    <div class="date-selection">
+                <label for="dateInput">Select Date:</label>
+                <input type="date" id="dateInput" onchange="getWeatherForDate()" />
+                <button onclick="getCurrentLocation()" class="location-btn">
+                  <i class="fas fa-location-arrow"></i> Use My Location
+                </button>
+              </div>
+              <div class="theme-selector">
+                <label for="themeSelect">Test Theme:</label>
+                <select id="themeSelect" onchange="testTheme()">
+                  <option value="">Auto (Weather + Time + Location)</option>
+                  <option value="sunny-day-ocean">☀️ Sunny Day at Ocean</option>
+                  <option value="rainy-night-mountain">🌧️ Rainy Night in Mountains</option>
+                  <option value="snowy-dawn-forest">❄️ Snowy Dawn in Forest</option>
+                  <option value="stormy-midnight-desert">⛈️ Stormy Midnight in Desert</option>
+                  <option value="cloudy-dusk-hilly">☁️ Cloudy Dusk in Hills</option>
+                  <option value="sunny-dawn-ocean">🌅 Sunny Dawn at Ocean</option>
+                  <option value="rainy-day-forest">🌦️ Rainy Day in Forest</option>
+                  <option value="snowy-night-mountain">🌨️ Snowy Night in Mountains</option>
+                  <option value="stormy-dusk-desert">🌪️ Stormy Dusk in Desert</option>
+                  <option value="cloudy-midnight-ocean">🌊 Cloudy Midnight at Ocean</option>
+                </select>
+              </div>
     </div>
-    <div class="weather-result" id="weatherResult"></div>
+
+    <div class="weather-content">
+      <!-- Current Weather Section -->
+      <div class="current-weather" id="currentWeather">
+        <div class="current-weather-content" id="currentWeatherContent">
+          <div class="weather-placeholder">
+            <i class="fas fa-cloud-sun"></i>
+            <p>Search for a city to see the weather</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weather Calendar, 5-Day Forecast, and Air Quality - Horizontal Layout -->
+      <div class="forecast-calendar-row">
+        <!-- Dynamic Calendar -->
+        <div class="calendar-section">
+          <h3><i class="fas fa-calendar-alt"></i> Weather Calendar</h3>
+          <div class="calendar-container" id="calendarContainer">
+            <div class="calendar-header">
+              <button onclick="previousMonth()" class="calendar-nav-btn">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <h4 id="calendarMonth">Loading...</h4>
+              <button onclick="nextMonth()" class="calendar-nav-btn">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </div>
+        </div>
+
+        <!-- 5-Day Forecast -->
+        <div class="forecast-section">
+          <h3><i class="fas fa-calendar-alt"></i> 5-Day Forecast</h3>
+          <div class="forecast-container" id="forecastContainer"></div>
+        </div>
+
+        <!-- Air Quality Section -->
+        <div class="air-quality-section" id="airQuality">
+          <h3><i class="fas fa-wind"></i> Air Quality</h3>
+          <div class="air-quality-content">
+            <div class="air-quality-placeholder">
+              <i class="fas fa-wind"></i>
+              <p>Search for a city to see air quality</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Real-time Weather Map - Vertical Layout -->
+      <div class="map-section">
+        <h3><i class="fas fa-map"></i> Real-time Weather Map</h3>
+        <div class="map-container" id="weatherMap">
+          <div class="map-controls">
+            <button onclick="toggleMapLayer('temperature')" class="map-btn active" id="tempBtn">
+              <i class="fas fa-thermometer-half"></i> Temperature
+            </button>
+            <button onclick="toggleMapLayer('precipitation')" class="map-btn" id="precipBtn">
+              <i class="fas fa-cloud-rain"></i> Precipitation
+            </button>
+            <button onclick="toggleMapLayer('wind')" class="map-btn" id="windBtn">
+              <i class="fas fa-wind"></i> Wind
+            </button>
+            <button onclick="toggleMapLayer('clouds')" class="map-btn" id="cloudBtn">
+              <i class="fas fa-cloud"></i> Clouds
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Weather Info -->
+      <div class="additional-info" id="additionalInfo"></div>
+    </div>
+
+    <footer class="app-footer">
+      <p>Powered by WeatherAPI.com | <i class="fas fa-heart"></i> Made with love</p>
+    </footer>
   </div>
 
-  <script src="script.js"></script>
+                        <script src="script.js?v=10"></script>
+  <script>
+    // Debug script to check if elements are loading
+    document.addEventListener('DOMContentLoaded', function() {
+      const status = document.getElementById('status');
+      const elements = document.getElementById('elements');
+      
+      status.textContent = 'DOM Loaded';
+      
+      const requiredElements = [
+        'currentWeather',
+        'currentWeatherContent',
+        'cityInput',
+        'airQuality',
+        'forecastContainer',
+        'weatherMap',
+        'additionalInfo',
+        'calendarContainer',
+        'dateInput'
+      ];
+      
+      const foundElements = requiredElements.filter(id => document.getElementById(id));
+      elements.textContent = `${foundElements.length}/${requiredElements.length}`;
+      
+      console.log('Debug: Found elements:', foundElements);
+      console.log('Debug: All elements:', requiredElements);
+    });
+  </script>
 </body>
 </html>
